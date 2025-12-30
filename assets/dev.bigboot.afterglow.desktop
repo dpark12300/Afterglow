@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Afterglow
+Comment=Keep your Lutris covers, banners, and icons in sync
+Exec=afterglow %u
+Icon=afterglow
+Categories=Game;Utility;
+Terminal=false
+StartupWMClass=dev.bigboot.afterglow
+MimeType=x-scheme-handler/sgdb;
+X-KDE-Protocols=sgdb

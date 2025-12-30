@@ -1,0 +1,34 @@
+[package]
+name = "afterglow"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+iced = { version = "0.14.0", features = ["image", "tokio", "svg"] }
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.13.0", default-features = false, features = [
+    "json",
+    "rustls",
+    "stream",
+] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+rusqlite = { version = "0.38.0", features = ["bundled"] }
+dirs = { version = "6.0" }
+anyhow = { version = "1.0" }
+image = { version = "0.25" }
+futures = { version = "0.3" }
+url = { version = "2.5" }
+once_cell = { version = "1.19" }
+async-trait = { version = "0.1.89" }
+rfd = { version = "0.16.0" }
+steamgriddb_api = { git = "https://github.com/BigBoot/steamgriddb_api.git", default-features = false, features = [
+    "async",
+    "rustls-tls",
+] }
+fuzzy-matcher = { version = "0.3" }
+
+[package.metadata.appimage]
+assets = []
+icon = "assets/icon.svg"
+desktop_entry = "assets/dev.bigboot.afterglow.desktop"

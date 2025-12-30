@@ -1,0 +1,98 @@
+name: Rust Build and Release
+
+on:
+    push:
+        branches:
+            - master
+        tags:
+            - "*"
+
+jobs:
+    build:
+        runs-on: ${{ matrix.runs-on }}
+
+        strategy:
+            matrix:
+                include:
+                    - runs-on: ubuntu-22.04
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Cache
+              uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.cargo/bin/
+                      ~/.cargo/registry/index/
+                      ~/.cargo/registry/cache/
+                      ~/.cargo/git/db/
+                      target/
+                  key: ${{ matrix.runs-on }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+            - name: Set up Rust
+              uses: dtolnay/rust-toolchain@1.92.0
+
+            - name: Install cargo-release
+              uses: taiki-e/install-action@v2
+              with:
+                  tool: cargo-appimage
+
+            - name: Install appimagetool
+              run: |-
+                  mkdir -p "$HOME/.local/bin"
+                  curl -sL "https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage" -o "$HOME/.local/bin/appimagetool"
+                  chmod +x "$HOME/.local/bin/appimagetool"
+                  echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+            - name: Build
+              run: cargo build --release
+
+            - name: Create AppImage
+              run: cargo appimage
+
+            - name: Prepare artifacts
+              shell: bash
+              run: |-
+                  mkdir dist
+                  mv "target/appimage/afterglow.AppImage" "dist/Afterglow.AppImage"
+
+            - name: Archive artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: afterglow-${{ matrix.runs-on }}
+                  path: dist/*
+
+    github-release:
+        needs: [build]
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/')
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Parse Changelog
+              id: changelog
+              uses: coditory/changelog-parser@v1
+
+            - name: Download All Artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  path: dist
+                  pattern: afterglow-*
+                  merge-multiple: true
+
+            - name: Create Release
+              id: create_release
+              uses: softprops/action-gh-release@v1
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  name: Release ${{ github.ref_name }}
+                  body: ${{ steps.changelog.outputs.description }}
+                  files: dist/*
