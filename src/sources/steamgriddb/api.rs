@@ -3,7 +3,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use std::sync::Arc;
 use steamgriddb_api::{
-    query_parameters::{IconQueryParameters, MimeTypeIcon},
+    query_parameters::{GridDimentions, GridQueryParameters, IconQueryParameters, MimeTypeIcon},
     Client, QueryType,
 };
 
@@ -62,16 +62,22 @@ impl ImageSource for SteamGridDB {
             }
         }
 
-        // Heroes
-        if let Ok(heroes) = self
+        // Banners (landscape grids)
+        if let Ok(grids) = self
             .client
-            .get_images_for_id(id, &QueryType::Hero(None))
+            .get_images_for_id(
+                id,
+                &QueryType::Grid(Some(GridQueryParameters {
+                    dimentions: Some(&[GridDimentions::D460x215, GridDimentions::D920x430]),
+                    ..Default::default()
+                })),
+            )
             .await
         {
-            for hero in heroes {
+            for grid in grids {
                 images.push(GameImage {
-                    url: hero.url.clone(),
-                    thumb: hero.thumb.clone(),
+                    url: grid.url.clone(),
+                    thumb: grid.thumb.clone(),
                     kind: ImageKind::Banner,
                 });
             }
