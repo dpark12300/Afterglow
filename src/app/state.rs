@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 pub const COVER_DIMENSIONS: (u32, u32) = (600, 900);
-pub const BANNER_DIMENSIONS: (u32, u32) = (1920, 620);
+pub const BANNER_DIMENSIONS: (u32, u32) = (920, 430);
 pub const ICON_DIMENSIONS: (u32, u32) = (512, 512);
 const HERO_DIMENSIONS: (u32, u32) = (1920, 1080);
 const LOGO_DIMENSIONS: (u32, u32) = (1024, 512);
