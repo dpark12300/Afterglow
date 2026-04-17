@@ -1,0 +1,47 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - "**"
+    pull_request:
+
+jobs:
+    build:
+        runs-on: ubuntu-22.04
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Cache
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.cargo/bin/
+                      ~/.cargo/registry/index/
+                      ~/.cargo/registry/cache/
+                      ~/.cargo/git/db/
+                      target/
+                  key: ubuntu-22.04-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+            - name: Set up Rust
+              uses: dtolnay/rust-toolchain@1.92.0
+
+            - name: Install system dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                      libx11-dev \
+                      libxext-dev \
+                      libxft-dev \
+                      libxi-dev \
+                      libxrandr-dev \
+                      libwayland-dev \
+                      libxkbcommon-dev \
+                      pkg-config \
+                      libgl1-mesa-dev \
+                      libssl-dev
+
+            - name: Build
+              run: cargo build
